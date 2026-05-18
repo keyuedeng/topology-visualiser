@@ -1,7 +1,7 @@
 Value DEVICE_ID (\S+)
 Value IP_ADDRESS (\d+\.\d+\.\d+\.\d+)
 Value LOCAL_INTERFACE (\S+)
-Value REMOTE_INTERFACE (\S+)
+Value REMOTE_INTERFACE (.+)
 
 Start
   ^-{5,} -> Record
