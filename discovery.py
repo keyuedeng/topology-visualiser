@@ -1,5 +1,7 @@
 from collections import deque
 
+from netmiko.exceptions import NetmikoAuthenticationException, NetmikoTimeoutException
+
 from connection import connect
 from device import find
 from parsers.show_cdp_neighbors import parse_cdp_neighbors
@@ -27,19 +29,27 @@ def discover_topology(seed_ip, username, password, secret):
         device = registry.devices[canonical_id]
         ip = next(iter(device.ips))
 
-        conn = connect(ip, username, password, secret)
+        print(f"Connecting to {device.hostname} ({ip})...")
 
-        version_info = parse_show_version(conn.send_command("show version"))
+        try:
+            conn = connect(ip, username, password, secret)
+            version_info = parse_show_version(conn.send_command("show version"))
+            cdp_neighbors = parse_cdp_neighbors(conn.send_command("show cdp neighbors detail"))
+            lldp_neighbors = parse_lldp_neighbors(conn.send_command("show lldp neighbors detail"))
+            conn.disconnect()
+        except (NetmikoTimeoutException, NetmikoAuthenticationException) as e:
+            print(f"  Unreachable, skipping: {ip} ({e.__class__.__name__})")
+            continue
+
         device = registry.confirm_device(
-            canonical_id, 
+            canonical_id,
             serial=version_info["serial"],
             model=version_info["model"],
             version=version_info["version"],
         )
         device.hostname = version_info["hostname"]
-        cdp_neighbors = parse_cdp_neighbors(conn.send_command("show cdp neighbors detail"))
-        lldp_neighbors = parse_lldp_neighbors(conn.send_command("show lldp neighbors detail"))
-        conn.disconnect()
+
+        print(f"  Confirmed {device.hostname} ({ip}) -- found {len(cdp_neighbors) + len(lldp_neighbors)} neighbor entries")
 
         for neighbor in cdp_neighbors + lldp_neighbors:
             neighbor_device = registry.register_neighbor(

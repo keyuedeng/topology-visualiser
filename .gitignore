@@ -5,3 +5,4 @@ __pycache__/
 .DS_Store
 test_parsers.py
 test_connection.py
+test_discover.py
