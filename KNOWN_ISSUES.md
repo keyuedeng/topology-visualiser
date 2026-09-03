@@ -18,3 +18,11 @@ Running list of gaps and design tradeoffs found while testing against the real l
 - draw.io XML export
 - matplotlib quick preview
 - CLI wiring (`argparse --seed`) in `main.py`
+
+## Rendering limitations
+
+- **matplotlib quick preview doesn't offset parallel edges.** Since the graph is a `MultiGraph`, two separate physical links between the same pair of devices (e.g. the `another-wan-router` double-link case) are stored correctly as two distinct edges, but `nx.draw()` doesn't visually separate them — they'll overlap and look like a single line in the quick preview. Acceptable for a fast sanity-check tool; the draw.io export can do better (e.g. curved/offset lines) since it's the primary output.
+
+## Future improvements (out of original scope)
+
+- **EtherChannel/port-channel bundles aren't detected.** CDP/LLDP report per physical member interface, so a multi-link EtherChannel between two devices currently shows up as multiple independent parallel edges (handled correctly, since `MultiGraph` supports this) but with no indication they're actually one logical bundle. Detecting this would need a new parser + an additional command (`show etherchannel summary` or similar) to group member interfaces together. Deferred until the core deliverables (draw.io export, matplotlib preview, CLI) are done.
