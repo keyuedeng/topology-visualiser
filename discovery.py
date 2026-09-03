@@ -37,7 +37,7 @@ def discover_topology(seed_ip, username, password, secret):
             version=version_info["version"],
         )
         device.hostname = version_info["hostname"]
-        cdp_neighbors = parse_cdp_neighbors(conn.send.command("show cdp neighbors detail"))
+        cdp_neighbors = parse_cdp_neighbors(conn.send_command("show cdp neighbors detail"))
         lldp_neighbors = parse_lldp_neighbors(conn.send_command("show lldp neighbors detail"))
         conn.disconnect()
 
@@ -51,6 +51,7 @@ def discover_topology(seed_ip, username, password, secret):
                 "remote_device": neighbor_device.id,
                 "local_interface": neighbor["local_interface"],
                 "remote_interface": neighbor["remote_interface"],
+                "ip": neighbor["neighbor_ip"],
             })
 
             queue.append(neighbor_device.id)
