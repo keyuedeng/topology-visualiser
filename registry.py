@@ -16,15 +16,16 @@ class DeviceRegistry:
         return new_id
 
     def register_neighbor(self, hostname: str, ip: str) -> Device:
-        if ip in self.ip_index:
+        if ip and ip in self.ip_index:
             stored_id = self.ip_index[ip]
             canonical_id = find(self.parent, stored_id)
             return self.devices[canonical_id]
 
         new_id = self._new_id()
-        new_device = Device(id=new_id, hostname=hostname, ips={ip})
+        new_device = Device(id=new_id, hostname=hostname, ips={ip} if ip else set())
         self.devices[new_id] = new_device
-        self.ip_index[ip] = new_id
+        if ip:
+            self.ip_index[ip] = new_id
         return new_device
 
 

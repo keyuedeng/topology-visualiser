@@ -54,7 +54,8 @@ def discover_topology(seed_ip, username, password, secret):
                 "ip": neighbor["neighbor_ip"],
             })
 
-            queue.append(neighbor_device.id)
+            if neighbor["neighbor_ip"]:
+                queue.append(neighbor_device.id)
 
     return registry, edges
 
