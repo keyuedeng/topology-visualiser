@@ -12,7 +12,7 @@ def preview(G, registry):
         labels=labels,
         with_labels=True,
         node_color="lightblue",
-        node_size=300,
+        node_size=100,
         font_size=6,
     )
     plt.show()
