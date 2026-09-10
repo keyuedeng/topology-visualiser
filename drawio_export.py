@@ -8,6 +8,24 @@ NODE_HEIGHT = 60
 CONFIRMED_COLOR = "#dae8fc"
 UNCONFIRMED_COLOR = "#f5f5f5"
 
+INTERFACE_ABBREVIATIONS = {
+    "TenGigabitEthernet": "Te",
+    "GigabitEthernet": "Gi",
+    "FastEthernet": "Fa",
+    "Ethernet": "Eth",
+    "Port-channel": "Po",
+    "Loopback": "Lo",
+    "Vlan": "Vl",
+    "Serial": "Se",
+}
+
+
+def abbreviate_interface(name):
+    for full, short in INTERFACE_ABBREVIATIONS.items():
+        if name.startswith(full):
+            return short + name[len(full):]
+    return name
+
 
 def export_to_drawio(G, registry, filepath):
     pos = nx.spring_layout(G)
@@ -61,7 +79,7 @@ def export_to_drawio(G, registry, filepath):
         cell = ET.SubElement(
             root, "mxCell",
             id=edge_id,
-            style="edgeStyle=orthogonalEdgeStyle;rounded=0;",
+            style="edgeStyle=orthogonalEdgeStyle;rounded=0;startArrow=none;endArrow=none;",
             edge="1", parent="1",
             source=f"node-{u}", target=f"node-{v}",
         )
@@ -79,6 +97,28 @@ def export_to_drawio(G, registry, filepath):
 
             points = ET.SubElement(geometry, "Array", **{"as": "points"})
             ET.SubElement(points, "mxPoint", x=str(wx), y=str(wy))
+
+        label_style = "edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=8;"
+
+        local_label = ET.SubElement(
+            root, "mxCell",
+            id=f"{edge_id}-local-label", value=abbreviate_interface(data["local_interface"]),
+            style=label_style, vertex="1", connectable="0", parent=edge_id,
+        )
+        local_geometry = ET.SubElement(
+            local_label, "mxGeometry", x="-0.7", y="0", relative="1", **{"as": "geometry"},
+        )
+        ET.SubElement(local_geometry, "mxPoint", x="0", y="-10", **{"as": "offset"})
+
+        remote_label = ET.SubElement(
+            root, "mxCell",
+            id=f"{edge_id}-remote-label", value=abbreviate_interface(data["remote_interface"]),
+            style=label_style, vertex="1", connectable="0", parent=edge_id,
+        )
+        remote_geometry = ET.SubElement(
+            remote_label, "mxGeometry", x="0.7", y="0", relative="1", **{"as": "geometry"},
+        )
+        ET.SubElement(remote_geometry, "mxPoint", x="0", y="-10", **{"as": "offset"})
 
     tree = ET.ElementTree(mxfile)
     ET.indent(tree, space="  ")
