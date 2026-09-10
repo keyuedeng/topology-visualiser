@@ -1,6 +1,6 @@
-# Known issues / possible improvements
+# Dev notes
 
-Running list of gaps and design tradeoffs found while testing against the real lab. Not all of these need fixing — some are accepted limitations — but worth tracking so they don't get forgotten.
+Running list of gaps, design tradeoffs, and decisions found while building and testing against the real lab. Not all of these need fixing — some are accepted limitations — but worth tracking so they don't get forgotten.
 
 ## Identity / deduplication
 
